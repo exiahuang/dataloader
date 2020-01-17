@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Xysfdx-Dataloader" default="start_export">
+    <property environment="env"/>
+    <property name="dataloader.jar" location="./jar"/>
+
+    <tstamp>
+        <format property="today" pattern="yyyyMMdd_HHmm"/>
+    </tstamp>
+    <macrodef name="export">
+        <attribute name="file"/>
+        <attribute name="object"/>
+        <attribute name="soql"/>
+        <sequential>
+            <mkdir dir="Export_${today}"/>
+            <record name="Export_${today}/export_${today}.log" append="true" action="start"/>
+            <echo message=">>>>>>>>>>>>>>>>>>>>>>Start to Export @{object}"/>
+            <echo message="Exporting @{object}"/>
+            <copy 
+                file="template-process-conf.xml" 
+                tofile="process-conf.xml" 
+                overwrite="true" 
+                failonerror="true"/>
+            <replace file="process-conf.xml">
+                <replacefilter token="_object_" value="@{object}"/>
+                <replacefilter token="_soql_" value="@{soql}"/>
+                <replacefilter token="_folder_" value="Export_${today}"/>
+                <replacefilter token="_file_" value="@{file}_${today}.csv"/>
+            </replace>
+            <java 
+                classname="com.salesforce.dataloader.process.ProcessRunner"
+                classpath="${dataloader.fullpath}"
+                failonerror="true">
+                <sysproperty key="salesforce.config.dir" value="."/>
+                <arg line="process.name=@{object}"/>
+            </java>
+            <echo message=">>>>>>>>>>>>>>>>>>>>>>End of Export @{object}"/>
+            <echo message="Export dir : Export_${today}"/>
+            <record name="Export_${today}/export_${today}.log" action="stop"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="set-property">
+        <attribute name="name" />
+        <attribute name="if-property-isset" />
+        <attribute name="value" default="${@{if-property-isset}}" />
+
+        <sequential>
+            <condition property="@{name}" value="@{value}">
+            <and>
+                <isset property="@{if-property-isset}" />
+                <not>
+                <equals arg1="${@{if-property-isset}}" arg2="" />
+                </not>
+            </and>
+            </condition>
+        </sequential>
+    </macrodef>
+
+    <target name="init">
+        <set-property name="api_version" if-property-isset="apiversion" />
+        <property name="api_version" value="43.0.0" />
+        <property name="dataloader.fullpath" location="${dataloader.jar}/dataloader-${api_version}-uber.jar"/>
+        <mkdir dir="${dataloader.jar}"/>
+        <get src="http://salesforcexytools.com/mystatic/jar/dataloader-${api_version}-uber.jar" dest="${dataloader.fullpath}" verbose="true" usetimestamp="true"/>
+    </target>
+
+    <target name="encrypt" depends="init">
+        <!-- ant encrypt -Dpassword=your_password -Dapiversion=43.0.0 -->
+        <sequential>
+            <java fork="true" classname="com.salesforce.dataloader.security.EncryptionUtil" classpath="${dataloader.fullpath}">
+                <arg line="-e ${password}"/>
+            </java>
+        </sequential>
+    </target>
+
+    <target name="start_export" depends="init">
+        <!-- ant start_export -Dsobject_name=User -Dsoql="select id,name from user limit 100" -->
+        <export file="${sobject_name}" object="${sobject_name}" soql="${soql}"/>
+    </target>
+
+ </project>
