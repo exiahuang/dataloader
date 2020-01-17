@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Xysfdx-Dataloader" default="start_export">
     <property environment="env"/>
-    <property name="dataloader.jar" location="./jar"/>
+    <property name="dataloader.jar" location="${user.home}/jar"/>
+    <property name="default_api_version" value="42.0.0" />
 
     <tstamp>
         <format property="today" pattern="yyyyMMdd_HHmm"/>
@@ -58,14 +59,14 @@
 
     <target name="init">
         <set-property name="api_version" if-property-isset="apiversion" />
-        <property name="api_version" value="43.0.0" />
+        <property name="api_version" value="${default_api_version}" />
         <property name="dataloader.fullpath" location="${dataloader.jar}/dataloader-${api_version}-uber.jar"/>
         <mkdir dir="${dataloader.jar}"/>
         <get src="http://salesforcexytools.com/mystatic/jar/dataloader-${api_version}-uber.jar" dest="${dataloader.fullpath}" verbose="true" usetimestamp="true"/>
     </target>
 
     <target name="encrypt" depends="init">
-        <!-- ant encrypt -Dpassword=your_password -Dapiversion=43.0.0 -->
+        <!-- ant encrypt -Dpassword=your_password -Dapiversion=42.0.0 -->
         <sequential>
             <java fork="true" classname="com.salesforce.dataloader.security.EncryptionUtil" classpath="${dataloader.fullpath}">
                 <arg line="-e ${password}"/>

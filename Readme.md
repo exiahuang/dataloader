@@ -6,7 +6,7 @@
 
 -   Need ant and java
 -   Support Windows/WSL/Linux/Mac.
--   Dataloader version: 40.0.0, 41.0.0, 42.0.0, 43.0.0
+-   Dataloader version: 40.0.0, 41.0.0, 42.0.0
 -   Not need to install dataloader, auto download.
 -   Integrated with [exiahuang/xysfdx](https://github.com/exiahuang/xysfdx) for `vscode`
 
