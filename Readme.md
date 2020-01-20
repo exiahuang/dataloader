@@ -35,7 +35,7 @@ ant encrypt -Dpassword=your_password -Dapiversion=47.0.0
 for 40.0.0~42.0.0
 
 ```shell
-ant encrypt_before_v42 -Dpassword=your_password -Dapiversion=47.0.0
+ant encrypt_before_v42 -Dpassword=your_password -Dapiversion=42.0.0
 
 ```
 
@@ -67,7 +67,7 @@ sudo apt install -y zulu-11
 
 ```
 
-### check java version
+`Zulu` java version:
 
 ```
 $ java -version
@@ -76,6 +76,18 @@ openjdk version "11.0.6" 2020-01-14 LTS
 OpenJDK Runtime Environment Zulu11.37+17-CA (build 11.0.6+10-LTS)
 OpenJDK 64-Bit Server VM Zulu11.37+17-CA (build 11.0.6+10-LTS, mixed mode)
 ```
+
+you can use `openjdk-11-jdk`
+
+```
+$ java -version
+
+openjdk version "11.0.5" 2019-10-15
+OpenJDK Runtime Environment (build 11.0.5+10-post-Ubuntu-0ubuntu1.118.04)
+OpenJDK 64-Bit Server VM (build 11.0.5+10-post-Ubuntu-0ubuntu1.118.04, mixed mode, sharing)
+```
+
+### check/change java version
 
 check all java version in your os.
 
