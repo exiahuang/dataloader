@@ -3,6 +3,7 @@
     <property environment="env"/>
     <property name="dataloader.jar" location="${user.home}/jar"/>
     <property name="default_api_version" value="42.0.0" />
+    <property name="dataloader_key_file" value="dataloader.key" />
 
     <tstamp>
         <format property="today" pattern="yyyyMMdd_HHmm"/>
@@ -57,6 +58,16 @@
         </sequential>
     </macrodef>
 
+    <scriptdef name="get_password" language="javascript">
+        <attribute name="text" />
+        <attribute name="password" />
+        <![CDATA[
+        var text = attributes.get("text");
+        var temp = text.split(/\r?\n/);
+        project.setProperty(attributes.get("password"), temp[temp.length - 1]);
+        ]]>
+    </scriptdef>
+
     <target name="init">
         <set-property name="api_version" if-property-isset="apiversion" />
         <property name="api_version" value="${default_api_version}" />
@@ -65,11 +76,39 @@
         <get src="http://salesforcexytools.com/mystatic/jar/dataloader-${api_version}-uber.jar" dest="${dataloader.fullpath}" verbose="true" usetimestamp="true"/>
     </target>
 
-    <target name="encrypt" depends="init">
+    <target name="encrypt_before_v42" depends="init">
         <!-- ant encrypt -Dpassword=your_password -Dapiversion=42.0.0 -->
         <sequential>
             <java fork="true" classname="com.salesforce.dataloader.security.EncryptionUtil" classpath="${dataloader.fullpath}">
                 <arg line="-e ${password}"/>
+            </java>
+            <antcall target="finish" />
+        </sequential>
+    </target>
+
+    <target name="finish">
+        <echo message="Copy the generated encrypted password and set sfdc.password in config.properties."/>
+    </target>
+
+    <target name="encrypt" depends="generate_key">
+        <!-- ant encrypt -Dpassword=your_password -Dapiversion=47.0.0 -->
+        <sequential>
+            <java fork="true" classname="com.salesforce.dataloader.security.EncryptionUtil" classpath="${dataloader.fullpath}">
+                <arg line="-e ${password} ${dataloader_key_file}"/>
+            </java>
+            <antcall target="finish" />
+        </sequential>
+    </target>
+
+    <target name="check_key_file_exist">
+        <available file="${dataloader_key_file}" property="dataloader_key_file_exist"/>
+    </target>
+
+    <!-- Generate keyfile with optional keyfile path -->
+    <target name="generate_key" depends="init, check_key_file_exist" unless="dataloader_key_file_exist">
+        <sequential>
+            <java fork="true" classname="com.salesforce.dataloader.security.EncryptionUtil" classpath="${dataloader.fullpath}">
+                <arg line="-k ${dataloader_key_file}"/>
             </java>
         </sequential>
     </target>
