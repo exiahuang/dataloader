@@ -6,16 +6,22 @@
     <property name="dataloader_key_file" value="dataloader.key" />
 
     <tstamp>
-        <format property="today" pattern="yyyyMMdd_HHmm"/>
+        <format property="timestamp" pattern="yyyyMMdd_HHmm"/>
     </tstamp>
-    <macrodef name="export">
+    <macrodef name="dataloader">
         <attribute name="file"/>
         <attribute name="object"/>
-        <attribute name="soql"/>
+        <attribute name="soql" default="" />
+        <attribute name="operation" />
+        <attribute name="sdl" default="" />
+        <attribute name="csv" default="" />
+        <attribute name="extid" default="" />
+        <attribute name="log.folder" default="log/@{operation}" />
+        <attribute name="log.file" default="@{log.folder}/@{object}_${timestamp}.log" />
         <sequential>
-            <mkdir dir="Export_${today}"/>
-            <record name="Export_${today}/export_${today}.log" append="true" action="start"/>
-            <echo message=">>>>>>>>>>>>>>>>>>>>>>Start to Export @{object}"/>
+            <mkdir dir="@{log.folder}"/>
+            <record name="@{log.file}" append="true" action="start"/>
+            <echo message=">>>>>>>>>>>>>>>>>>>>>>Start @{operation} @{object}"/>
             <echo message="Exporting @{object}"/>
             <copy 
                 file="template-process-conf.xml" 
@@ -25,19 +31,22 @@
             <replace file="process-conf.xml">
                 <replacefilter token="_object_" value="@{object}"/>
                 <replacefilter token="_soql_" value="@{soql}"/>
-                <replacefilter token="_folder_" value="Export_${today}"/>
-                <replacefilter token="_file_" value="@{file}_${today}.csv"/>
+                <replacefilter token="_sdl_" value="@{sdl}"/>
+                <replacefilter token="_csv_" value="@{csv}"/>
+                <replacefilter token="_externalId_" value="@{extid}"/>
+                <replacefilter token="_folder_" value="@{object}_${timestamp}"/>
+                <replacefilter token="_file_" value="@{file}_${timestamp}.csv"/>
             </replace>
             <java 
                 classname="com.salesforce.dataloader.process.ProcessRunner"
                 classpath="${dataloader.fullpath}"
                 failonerror="true">
                 <sysproperty key="salesforce.config.dir" value="."/>
-                <arg line="process.name=@{object}"/>
+                <arg line="process.name=@{object}@{operation}"/>
             </java>
-            <echo message=">>>>>>>>>>>>>>>>>>>>>>End of Export @{object}"/>
-            <echo message="Export dir : Export_${today}"/>
-            <record name="Export_${today}/export_${today}.log" action="stop"/>
+            <echo message=">>>>>>>>>>>>>>>>>>>>>>@{operation} @{object} Done!"/>
+            <echo message="log file : @{log.file}"/>
+            <record name="@{log.file}" action="stop"/>
         </sequential>
     </macrodef>
 
@@ -115,7 +124,30 @@
 
     <target name="start_export" depends="init">
         <!-- ant start_export -Dsobject_name=User -Dsoql="select id,name from user limit 100" -->
-        <export file="${sobject_name}" object="${sobject_name}" soql="${soql}"/>
+        <dataloader file="${sobject_name}" object="${sobject_name}" soql="${soql}" operation="Export" />
     </target>
 
+    <target name="export_all" depends="init">
+        <dataloader file="${sobject_name}" object="${sobject_name}" soql="${soql}" operation="ExportAll" />
+    </target>
+
+    <target name="insert" depends="init">
+        <dataloader file="${sobject_name}" object="${sobject_name}" sdl="${sdl}" csv="${csv}" operation="Insert" />
+    </target>
+
+    <target name="update" depends="init">
+        <dataloader file="${sobject_name}" object="${sobject_name}" sdl="${sdl}" csv="${csv}" operation="Update" />
+    </target>
+
+    <target name="delete" depends="init">
+        <dataloader file="${sobject_name}" object="${sobject_name}" sdl="${sdl}" csv="${csv}" operation="Delete" />
+    </target>
+
+    <target name="hard_delete" depends="init">
+        <dataloader file="${sobject_name}" object="${sobject_name}" sdl="${sdl}" csv="${csv}" operation="HardDelete" />
+    </target>
+
+    <target name="upsert" depends="init">
+        <dataloader file="${sobject_name}" object="${sobject_name}" sdl="${sdl}" csv="${csv}" extid="${extid}" operation="Upsert" />
+    </target>
  </project>

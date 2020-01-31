@@ -7,6 +7,7 @@
 -   Need ant and java
 -   Support Windows/WSL/Linux/Mac.
 -   Dataloader version: 40.0.0~47.0.0
+-   Support Export/ExportAll/Insert/Update/Upsert/Delete
 -   Not need to install dataloader, auto download.
 -   Integrated with [exiahuang/xysfdx](https://github.com/exiahuang/xysfdx) for `vscode`
 
@@ -49,6 +50,54 @@ ant start_export -Dsobject_name=Sobject_name -Dsoql="Soql"
 
 #example
 ant start_export -Dsobject_name=User -Dsoql="select id,name from user limit 100"
+```
+
+### export
+
+```sh
+#example
+ant start_export -Dsobject_name=User -Dsoql="select id,name from user limit 100" -Dapiversion=47.0.0
+```
+
+### exportAll
+
+```sh
+ant export_all -Dsobject_name=User -Dsoql="select id,name from user limit 100" -Dapiversion=47.0.0
+```
+
+### insert
+
+```sh
+ant insert -Dsobject_name=you_test_object__c -Dsdl="./insert/insert.sdl" -Dcsv="./insert/insert.csv" -Dapiversion=47.0.0
+```
+
+> TIPS: How to create sdl file ? I always use [SalesforceXyTools For Chrome](https://chrome.google.com/webstore/detail/salesforce-xytools/ehklfkbacogbanjgekccnbfdgjechlmf) to create it.
+
+### update
+
+```sh
+ant update -Dsobject_name=you_test_object__c -Dsdl="./update/update.sdl" -Dcsv="./update/update.csv" -Dapiversion=47.0.0
+```
+
+### upsert
+
+```sh
+ant upsert -Dsobject_name=you_test_object__c -Dsdl="./upsert/upsert.sdl" -Dcsv="./upsert/upsert.csv" -Dextid="Id or yourExtId" -Dapiversion=47.0.0
+
+```
+
+### delete
+
+```sh
+ant delete -Dsobject_name=you_test_object__c -Dsdl="./delete/delete.sdl" -Dcsv="./delete/delete.csv" -Dapiversion=47.0.0
+```
+
+### hard delete
+
+TODO: `hard delete not work`
+
+```sh
+ant hard_delete -Dsobject_name=you_test_object__c -Dsdl="./delete/delete.sdl" -Dcsv="./delete/delete.csv" -Dapiversion=47.0.0
 ```
 
 ## About Linux Environment or WSL
