@@ -6,7 +6,11 @@
 
 -   Need ant and java
 -   Support Windows/WSL/Linux/Mac.
--   Dataloader version: 40.0.0~47.0.0
+-   Dataloader version:
+  - 40.0.0~47.0.0
+  - 54.0.0
+  - 55.0.1
+  - 56.0.5
 -   Support Export/ExportAll/Insert/Update/Upsert/Delete
 -   Not need to install dataloader, auto download.
 -   Integrated with [exiahuang/xysfdx](https://github.com/exiahuang/xysfdx) for `vscode`
